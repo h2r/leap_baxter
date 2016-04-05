@@ -1,0 +1,414 @@
+Panels:
+  - Class: rviz/Displays
+    Help Height: 78
+    Name: Displays
+    Property Tree Widget:
+      Expanded:
+        - /Global Options1
+        - /Status1
+        - /TF1
+        - /MarkerArray1
+      Splitter Ratio: 0.5
+    Tree Height: 723
+  - Class: rviz/Selection
+    Name: Selection
+  - Class: rviz/Tool Properties
+    Expanded:
+      - /2D Pose Estimate1
+      - /2D Nav Goal1
+      - /Publish Point1
+    Name: Tool Properties
+    Splitter Ratio: 0.588679
+  - Class: rviz/Views
+    Expanded:
+      - /Current View1
+    Name: Views
+    Splitter Ratio: 0.5
+  - Class: rviz/Time
+    Experimental: false
+    Name: Time
+    SyncMode: 0
+    SyncSource: ""
+Visualization Manager:
+  Class: ""
+  Displays:
+    - Alpha: 0.5
+      Cell Size: 1
+      Class: rviz/Grid
+      Color: 160; 160; 164
+      Enabled: true
+      Line Style:
+        Line Width: 0.03
+        Value: Lines
+      Name: Grid
+      Normal Cell Count: 0
+      Offset:
+        X: 0
+        Y: 0
+        Z: 0
+      Plane: XY
+      Plane Cell Count: 10
+      Reference Frame: <Fixed Frame>
+      Value: true
+    - Class: rviz/TF
+      Enabled: true
+      Frame Timeout: 1
+      Frames:
+        All Enabled: true
+        finger270:
+          Value: true
+        finger271:
+          Value: true
+        finger272:
+          Value: true
+        finger273:
+          Value: true
+        finger274:
+          Value: true
+        finger280:
+          Value: true
+        finger281:
+          Value: true
+        finger282:
+          Value: true
+        finger283:
+          Value: true
+        finger284:
+          Value: true
+        finger290:
+          Value: true
+        finger291:
+          Value: true
+        finger292:
+          Value: true
+        finger293:
+          Value: true
+        finger294:
+          Value: true
+        finger300:
+          Value: true
+        finger301:
+          Value: true
+        finger302:
+          Value: true
+        finger303:
+          Value: true
+        finger304:
+          Value: true
+        finger310:
+          Value: true
+        finger311:
+          Value: true
+        finger312:
+          Value: true
+        finger313:
+          Value: true
+        finger314:
+          Value: true
+        finger320:
+          Value: true
+        finger321:
+          Value: true
+        finger322:
+          Value: true
+        finger323:
+          Value: true
+        finger324:
+          Value: true
+        finger330:
+          Value: true
+        finger331:
+          Value: true
+        finger332:
+          Value: true
+        finger333:
+          Value: true
+        finger334:
+          Value: true
+        finger340:
+          Value: true
+        finger341:
+          Value: true
+        finger342:
+          Value: true
+        finger343:
+          Value: true
+        finger344:
+          Value: true
+        finger350:
+          Value: true
+        finger351:
+          Value: true
+        finger352:
+          Value: true
+        finger353:
+          Value: true
+        finger354:
+          Value: true
+        finger360:
+          Value: true
+        finger361:
+          Value: true
+        finger362:
+          Value: true
+        finger363:
+          Value: true
+        finger364:
+          Value: true
+        finger370:
+          Value: true
+        finger371:
+          Value: true
+        finger372:
+          Value: true
+        finger373:
+          Value: true
+        finger374:
+          Value: true
+        hand27:
+          Value: true
+        hand28:
+          Value: true
+        hand29:
+          Value: true
+        hand30:
+          Value: true
+        hand31:
+          Value: true
+        hand32:
+          Value: true
+        hand33:
+          Value: true
+        hand34:
+          Value: true
+        hand35:
+          Value: true
+        hand36:
+          Value: true
+        hand37:
+          Value: true
+        leap:
+          Value: true
+        world:
+          Value: true
+      Marker Scale: 0.2
+      Name: TF
+      Show Arrows: true
+      Show Axes: true
+      Show Names: true
+      Tree:
+        world:
+          leap:
+            finger270:
+              {}
+            finger271:
+              {}
+            finger272:
+              {}
+            finger273:
+              {}
+            finger274:
+              {}
+            finger280:
+              {}
+            finger281:
+              {}
+            finger282:
+              {}
+            finger283:
+              {}
+            finger284:
+              {}
+            finger290:
+              {}
+            finger291:
+              {}
+            finger292:
+              {}
+            finger293:
+              {}
+            finger294:
+              {}
+            finger300:
+              {}
+            finger301:
+              {}
+            finger302:
+              {}
+            finger303:
+              {}
+            finger304:
+              {}
+            finger310:
+              {}
+            finger311:
+              {}
+            finger312:
+              {}
+            finger313:
+              {}
+            finger314:
+              {}
+            finger320:
+              {}
+            finger321:
+              {}
+            finger322:
+              {}
+            finger323:
+              {}
+            finger324:
+              {}
+            finger330:
+              {}
+            finger331:
+              {}
+            finger332:
+              {}
+            finger333:
+              {}
+            finger334:
+              {}
+            finger340:
+              {}
+            finger341:
+              {}
+            finger342:
+              {}
+            finger343:
+              {}
+            finger344:
+              {}
+            finger350:
+              {}
+            finger351:
+              {}
+            finger352:
+              {}
+            finger353:
+              {}
+            finger354:
+              {}
+            finger360:
+              {}
+            finger361:
+              {}
+            finger362:
+              {}
+            finger363:
+              {}
+            finger364:
+              {}
+            finger370:
+              {}
+            finger371:
+              {}
+            finger372:
+              {}
+            finger373:
+              {}
+            finger374:
+              {}
+            hand27:
+              {}
+            hand28:
+              {}
+            hand29:
+              {}
+            hand30:
+              {}
+            hand31:
+              {}
+            hand32:
+              {}
+            hand33:
+              {}
+            hand34:
+              {}
+            hand35:
+              {}
+            hand36:
+              {}
+            hand37:
+              {}
+      Update Interval: 0
+      Value: true
+    - Class: rviz/MarkerArray
+      Enabled: true
+      Marker Topic: /leap_viz/hand_markers
+      Name: MarkerArray
+      Namespaces:
+        hand27: true
+        hand28: true
+        hand29: true
+        hand30: true
+        hand31: true
+        hand32: true
+        hand33: true
+        hand34: true
+        hand35: true
+        hand36: true
+        hand37: true
+        leap: true
+        leap_lines: true
+      Queue Size: 100
+      Value: true
+  Enabled: true
+  Global Options:
+    Background Color: 48; 48; 48
+    Fixed Frame: leap
+    Frame Rate: 30
+  Name: root
+  Tools:
+    - Class: rviz/Interact
+      Hide Inactive Objects: true
+    - Class: rviz/MoveCamera
+    - Class: rviz/Select
+    - Class: rviz/FocusCamera
+    - Class: rviz/Measure
+    - Class: rviz/SetInitialPose
+      Topic: /initialpose
+    - Class: rviz/SetGoal
+      Topic: /move_base_simple/goal
+    - Class: rviz/PublishPoint
+      Single click: true
+      Topic: /clicked_point
+  Value: true
+  Views:
+    Current:
+      Class: rviz/Orbit
+      Distance: 1.448
+      Enable Stereo Rendering:
+        Stereo Eye Separation: 0.06
+        Stereo Focal Distance: 1
+        Swap Stereo Eyes: false
+        Value: false
+      Focal Point:
+        X: 0
+        Y: 0
+        Z: 0
+      Name: Current View
+      Near Clip Distance: 0.01
+      Pitch: 0.7654
+      Target Frame: <Fixed Frame>
+      Value: Orbit (rviz)
+      Yaw: 3.25676
+    Saved: ~
+Window Geometry:
+  Displays:
+    collapsed: false
+  Height: 1004
+  Hide Left Dock: false
+  Hide Right Dock: false
+  QMainWindow State: 000000ff00000000fd00000004000000000000013800000362fc0200000008fb0000001200530065006c0065006300740069006f006e00000001e10000009b0000006400fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c006100790073010000002800000362000000dd00fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261000000010000010f00000362fc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a00560069006500770073010000002800000362000000b000fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e100000197000000030000073f0000003efc0100000002fb0000000800540069006d006501000000000000073f000002f600fffffffb0000000800540069006d00650100000000000004500000000000000000000004ec0000036200000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  Selection:
+    collapsed: false
+  Time:
+    collapsed: false
+  Tool Properties:
+    collapsed: false
+  Views:
+    collapsed: false
+  Width: 1855
+  X: 55
+  Y: 24
