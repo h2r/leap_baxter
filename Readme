@@ -1,0 +1,8 @@
+cd catkin_ws
+./baxter.sh
+roslaunch leap_client leap_client.launch
+
+sudo leapd
+(if this does not work, run sudo service leapd restart)
+
+rosrun leap_client hand_controller.py
