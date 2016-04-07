@@ -1,0 +1,10 @@
+cd catkin_ws
+./baxter.sh
+roslaunch leap_client leap_client.launch
+
+sudo leapd
+(if this does not work, run sudo service leapd restart)
+
+rosrun leap_client hand_controller.py
+
+we need to adjust the coordinate axes so baxter's and leap's agree. Currently, moving hand forward moves baxter down, moving hand up moves baxter right, and moing hand right moves baxter forwards
