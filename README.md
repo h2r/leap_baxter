@@ -1,7 +1,7 @@
-leap_client
+leap_baxter
 ====
 
-ROS wrapper for the Leap Motion API.
+Built on top of the fabulous ROS wrapper for the Leap Motion API made by Juan (https://github.com/juancamilog/leap_client).
 
 Needs ROS hydro or newer, and the Leap SDK. It has only been tested on Ubuntu 14..04. You can get the Leap SDK here: https://developer.leapmotion.com/downloads
 
