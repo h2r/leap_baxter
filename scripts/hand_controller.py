@@ -19,7 +19,10 @@ from geometry_msgs.msg import (
     Point,
     Quaternion
 )
-from std_msgs.msg import Header
+from std_msgs.msg import (
+    Header,
+    String
+)
 
 from baxter_core_msgs.srv import (
     SolvePositionIK,
@@ -35,28 +38,51 @@ global base_robot_pose
 global right_limb
 global fx,fy,fz
 global fqx, fqy, fqz, fqw
+global right_gripper
+global einPub
 is_init = False
 still_count = 0
+cur_grip = False
+last_switch_time = 0
 
 # parameters
-start_position = {'right_s0': 0.9223059476623536, 'right_s1': -0.728640873413086, 'right_w0': 0.041033986029052734, 'right_w1': 0.8291166149047852, 'right_w2': -0.03067961572265625, 'right_e0': -0.07708253450317383, 'right_e1': 1.145883647241211}
-#start_position = {'right_s0': 0.713684560748291, 'right_s1': -1.0787719878479005, 'right_w0': -0.08245146725463867, 'right_w1': -0.7784952489624024, 'right_w2': 0.03911651004638672, 'right_e0': 0.07708253450317383, 'right_e1': 1.948155598388672}
+start_position = {
+ 'right_s0': 0.713684560748291,
+ 'right_s1': -0.728640873413086,
+ 'right_w0': 0.041033986029052734,
+ 'right_w1': 0.8291166149047852,
+ 'right_w2': -0.03067961572265625,
+ 'right_e0': -0.07708253450317383,
+ 'right_e1': 1.145883647241211}
+
+start_ee_pose = (0.8718358404663602,
+    -0.36435461249148715,
+    0.17227074304924156,
+    0.05420534191803939,
+    0.9839693463837491,
+    -0.028193083856791017,
+    0.16754478895904237)
+
+#start_position = {'right_s0': 0.713684560748291,
+# 'right_s1': -1.0787719878479005,
+# 'right_w0': -0.08245146725463867,
+# 'right_w1': -0.7784952489624024,
+# 'right_w2': 0.03911651004638672,
+# 'right_e0': 0.07708253450317383,
+# 'right_e1': 1.948155598388672}
 t_decay = 0.9
-q_decay = 0.7
-scale_factor = 2
+q_decay = 0.9
+scale_factor = 1.2
 
 def ik_solve(limb, pos, orient):
-    #~ rospy.init_node("rsdk_ik_service_client")
     ns = "ExternalTools/" + limb + "/PositionKinematicsNode/IKService"
     iksvc = rospy.ServiceProxy(ns, SolvePositionIK)
     ikreq = SolvePositionIKRequest()
-    #print "iksvc: ", iksvc
-    #print "ikreq: ", ikreq
+
     hdr = Header(stamp=rospy.Time.now(), frame_id='base')
     poses = {
         str(limb): PoseStamped(header=hdr,
             pose=Pose(position=pos, orientation=orient))}
-    #print poses
     ikreq.pose_stamp.append(poses[limb])
     try:
         rospy.wait_for_service(ns, 5.0)
@@ -68,7 +94,6 @@ def ik_solve(limb, pos, orient):
         print("SUCCESS - Valid Joint Solution Found:")
         # Format solution into Limb API-compatible dictionary
         limb_joints = dict(zip(resp.joints[0].name, resp.joints[0].position))
-        #print limb_joints
         return limb_joints
     else:
         print("INVALID POSE - No Valid Joint Solution Found.")
@@ -99,9 +124,6 @@ def arm_to_pose_sum(arm, pose):
     return_pose.position.x = pose.position.x + arm['position'].x
     return_pose.position.y = pose.position.y + arm['position'].y
     return_pose.position.z = pose.position.z + arm['position'].z
-    #print pose.position.x
-    #print arm['position'].x
-    #print return_pose.position.
 
     xyzw_array = lambda o: numpy.array([o.x, o.y, o.z, o.w])
 
@@ -127,8 +149,13 @@ def hand_control(data):
     global still_count
     global fx, fy, fz
     global fqx, fqy, fqz, fqw
+    global cur_grip
+    global last_switch_time
+    global base_robot_pose
 
     if not is_init:
+        msg = "0.5 setSpeed 0.01 setGridSize 1 setCurrentIKFastMode ikModeService %f %f %f %f %f %f %f moveToEEPose" % start_ee_pose
+        einPub.publish(msg)
         # check tht the velocity of the hand is near zero
         is_still = pow(data.hands[0].velocity.x,2) + \
             pow(data.hands[0].velocity.y,2) + pow(data.hands[0].velocity.z,2) < 16
@@ -153,9 +180,17 @@ def hand_control(data):
             last_time = cur_time
             print "init is FALSE"
             right_limb.move_to_joint_positions(start_position)
+            base_robot_pose =right_limb.endpoint_pose()
             return
 
         if cur_time - last_time > 0.01:
+
+            if len(data.hands) > 1 or True:
+                if hand_is_fist(data.hands[0]):
+                    base_hand_pose = data.hands[0].pose
+                    base_robot_pose = right_limb.endpoint_pose()
+                    last_time = rospy.get_time()
+                    return    
             # calculate the difference between the current location and the base location
             difference = pose_difference(data.hands[0].pose, base_hand_pose)
 
@@ -188,7 +223,9 @@ def hand_control(data):
             xyzw_array = lambda o: numpy.array([o.x, o.y, o.z, o.w])
 
             #slerp orientation
-            filtered_pose.orientation = Quaternion(*tf.transformations.quaternion_slerp(xyzw_array(filtered_pose.orientation), xyzw_array(new_arm_pose.orientation), 1 - q_decay))
+            filtered_pose.orientation = Quaternion(*tf.transformations.quaternion_slerp(
+                xyzw_array(filtered_pose.orientation),
+                xyzw_array(new_arm_pose.orientation), 1 - q_decay))
 
             # save orientation in global variables
             fqx = filtered_pose.orientation.x
@@ -196,17 +233,51 @@ def hand_control(data):
             fqz = filtered_pose.orientation.z
             fqw = filtered_pose.orientation.w
             
+            #msg = "%f %f %f %f %f %f %f moveToEEPose" % (fx, fy, fz, fqx, fqy, fqz, fqw)
+            #msg = "%f %f %f %f %f %f %f moveToEEPose" % start_ee_pose
+            #einPub.publish(msg)
+
             joint_angles = ik_solve('right',filtered_pose.position, filtered_pose.orientation)
             if joint_angles != -1:
                 right_limb.set_joint_positions(joint_angles)
 
+            # get thumb and index fingertip position
+            thumb_pos = data.hands[0].fingers[0].tip_position
+            index_pos = data.hands[0].fingers[1].tip_position
+
+            if fingers_touching(thumb_pos, index_pos):
+                if cur_time - last_switch_time > 0.2:
+                    if cur_grip == True:
+                        right_gripper.open(block=True)
+                        cur_grip = False
+                        print "opening"
+                    else:
+                        right_gripper.close(block=True)
+                        cur_grip = True
+                        print "closing"
+                last_switch_time = cur_time
+
+
             last_time = rospy.get_time()
 
-def isSqueezing(data):
-    thumb_pos = data.hands[0].fingers[0].tip_position
-    index_pos = data.hands[0].fingers[1].tip_position
-    print thumb_pos
-    print index_pos
+def hand_is_fist(hand):
+    in_fist = True
+    for finger in hand.fingers[1:]:
+        if finger_distance(finger.tip_position, hand.pose.position) >= 4000:
+            in_fist = False
+    print in_fist
+    return in_fist
+
+def finger_distance(finger1, finger2):
+    dist = (finger1.x - finger2.x)**2 + (finger1.y - finger2.y)**2 + (finger1.z - finger2.z)**2
+    return dist
+
+def fingers_touching(finger1,finger2):
+    if finger_distance(finger1,finger2) < 1000:
+        return True
+    else:
+        return False
+
 
 def hand_listener():
     rospy.Subscriber("/leap/hand_info", HandInfoList, hand_control)
@@ -215,17 +286,26 @@ def hand_listener():
 def main():
     global base_robot_pose
     global right_limb
+    global right_gripper
+    global einPub
 
     os.system("rosrun baxter_tools enable_robot.py -e")
 
     rospy.init_node('leap_baxter_interface')
 
     right_limb = baxter_interface.Limb('right')
-
+    right_gripper = baxter_interface.Gripper('right')
     
     right_limb.move_to_joint_positions(start_position)
-    base_robot_pose = right_limb.endpoint_pose()
     
+    if not right_gripper.calibrated():
+        right_gripper.calibrate()
+    right_gripper.open()
+
+    einPub = rospy.Publisher("/ein/right/forth_commands", String, queue_size = 0)
+
+    base_robot_pose = right_limb.endpoint_pose()
+
     print "Ready to pair with hand"
     
     hand_listener()
