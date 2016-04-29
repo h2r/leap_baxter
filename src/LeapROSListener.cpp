@@ -49,6 +49,8 @@ void LeapROSListener::processFrame(const Frame &frame) {
                 
                 hand_msg.pose.orientation = tf::createQuaternionMsgFromRollPitchYaw(
                         hand.palmNormal().roll(),hand.direction().pitch(),hand.direction().yaw());
+                //hand_msg.pose.orientation = tf::createQuaternionMsgFromRollPitchYaw(
+                 //       hand.direction().roll(),hand.direction().pitch(),hand.palmNormal().yaw());
 
                 hand_msg.velocity.x = hand.palmVelocity().x;
                 hand_msg.velocity.y = hand.palmVelocity().y;

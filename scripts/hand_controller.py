@@ -45,6 +45,7 @@ still_count = 0
 cur_grip = False
 last_switch_time = 0
 
+
 # parameters
 start_position = {
  'right_s0': 0.713684560748291,
@@ -55,13 +56,15 @@ start_position = {
  'right_e0': -0.07708253450317383,
  'right_e1': 1.145883647241211}
 
-start_ee_pose = (0.8718358404663602,
-    -0.36435461249148715,
+start_ee_pose = (0.8018358404663602,
+    -0.33435461249148715,
     0.17227074304924156,
     0.05420534191803939,
     0.9839693463837491,
     -0.028193083856791017,
     0.16754478895904237)
+
+start_pose_msg = "%f %f %f %f %f %f %f moveToEEPose" % start_ee_pose
 
 #start_position = {'right_s0': 0.713684560748291,
 # 'right_s1': -1.0787719878479005,
@@ -70,9 +73,11 @@ start_ee_pose = (0.8718358404663602,
 # 'right_w2': 0.03911651004638672,
 # 'right_e0': 0.07708253450317383,
 # 'right_e1': 1.948155598388672}
-t_decay = 0.9
-q_decay = 0.9
-scale_factor = 1.2
+t_decay = 0.92
+q_decay = 0.92
+scale_factor = 1.7
+
+using_ein = False
 
 def ik_solve(limb, pos, orient):
     ns = "ExternalTools/" + limb + "/PositionKinematicsNode/IKService"
@@ -154,8 +159,13 @@ def hand_control(data):
     global base_robot_pose
 
     if not is_init:
-        msg = "0.5 setSpeed 0.01 setGridSize 1 setCurrentIKFastMode ikModeService %f %f %f %f %f %f %f moveToEEPose" % start_ee_pose
-        einPub.publish(msg)
+        if using_ein:
+            #msg = "%f %f %f %f %f %f %f moveToEEPose" % start_ee_pose
+            einPub.publish(start_pose_msg)
+            einPub.publish("shiftIntoGraspGear1")
+        else:
+            right_limb.move_to_joint_positions(start_position)
+
         # check tht the velocity of the hand is near zero
         is_still = pow(data.hands[0].velocity.x,2) + \
             pow(data.hands[0].velocity.y,2) + pow(data.hands[0].velocity.z,2) < 16
@@ -169,8 +179,10 @@ def hand_control(data):
                 still_count = 0
         last_time = rospy.get_time()
 
-        fx, fy, fz = right_limb.endpoint_pose()["position"]
-        fqx, fqy, fqz, fqw = right_limb.endpoint_pose()["orientation"]
+        base_robot_pose = right_limb.endpoint_pose()
+        fx, fy, fz = base_robot_pose["position"]
+        fqx, fqy, fqz, fqw = base_robot_pose["orientation"]
+
         
     else: 
         # first check that the arm isn't coming from out of range
@@ -179,18 +191,20 @@ def hand_control(data):
             is_init = False
             last_time = cur_time
             print "init is FALSE"
-            right_limb.move_to_joint_positions(start_position)
-            base_robot_pose =right_limb.endpoint_pose()
             return
 
         if cur_time - last_time > 0.01:
 
-            if len(data.hands) > 1 or True:
-                if hand_is_fist(data.hands[0]):
-                    base_hand_pose = data.hands[0].pose
-                    base_robot_pose = right_limb.endpoint_pose()
-                    last_time = rospy.get_time()
-                    return    
+            if hand_is_fist(data.hands[0]):
+                base_hand_pose = data.hands[0].pose
+                #prev_q = right_limb.endpoint_pose()["orientation"]
+                base_robot_pose = right_limb.endpoint_pose()
+                #base_robot_pose["orientation"] = prev_q
+                fx, fy, fz = base_robot_pose["position"]
+                fqx, fqy, fqz, fqw = base_robot_pose["orientation"]
+                last_time = rospy.get_time()
+                print "HAND IS IN FIST"
+                return    
             # calculate the difference between the current location and the base location
             difference = pose_difference(data.hands[0].pose, base_hand_pose)
 
@@ -233,13 +247,13 @@ def hand_control(data):
             fqz = filtered_pose.orientation.z
             fqw = filtered_pose.orientation.w
             
-            #msg = "%f %f %f %f %f %f %f moveToEEPose" % (fx, fy, fz, fqx, fqy, fqz, fqw)
-            #msg = "%f %f %f %f %f %f %f moveToEEPose" % start_ee_pose
-            #einPub.publish(msg)
-
-            joint_angles = ik_solve('right',filtered_pose.position, filtered_pose.orientation)
-            if joint_angles != -1:
-                right_limb.set_joint_positions(joint_angles)
+            if using_ein:
+                msg = "%f %f %f %f %f %f %f moveToEEPose" % (fx, fy, fz, fqx, fqy, fqz, fqw)
+                einPub.publish(msg)
+            else:
+                joint_angles = ik_solve('right',filtered_pose.position, filtered_pose.orientation)
+                if joint_angles != -1:
+                    right_limb.set_joint_positions(joint_angles)
 
             # get thumb and index fingertip position
             thumb_pos = data.hands[0].fingers[0].tip_position
@@ -261,11 +275,15 @@ def hand_control(data):
             last_time = rospy.get_time()
 
 def hand_is_fist(hand):
-    in_fist = True
+    in_fist = False
+    avg_finger_dist = 0
+    num_fingers = len(hand.fingers)-1
     for finger in hand.fingers[1:]:
-        if finger_distance(finger.tip_position, hand.pose.position) >= 4000:
-            in_fist = False
-    print in_fist
+        avg_finger_dist = avg_finger_dist + finger_distance(finger.tip_position, hand.pose.position)
+    avg_finger_dist /= num_fingers
+    if avg_finger_dist < 1500*num_fingers:
+        in_fist = True
+    #print in_fist
     return in_fist
 
 def finger_distance(finger1, finger2):
@@ -273,7 +291,8 @@ def finger_distance(finger1, finger2):
     return dist
 
 def fingers_touching(finger1,finger2):
-    if finger_distance(finger1,finger2) < 1000:
+    #print finger_distance(finger1,finger2)
+    if finger_distance(finger1,finger2) < 2000:
         return True
     else:
         return False
@@ -295,16 +314,27 @@ def main():
 
     right_limb = baxter_interface.Limb('right')
     right_gripper = baxter_interface.Gripper('right')
+
+    # move limb to start position
+
+    if using_ein:
+        einPub = rospy.Publisher("/ein/right/forth_commands", String, queue_size = 0)
+        rospy.sleep(1) # wait for einPub to boot up
+        msg = "0.5 setSpeed 0.01 setGridSize 1 setCurrentIKFastMode ikModeService"
+        einPub.publish(msg)
+        einPub.publish(start_pose_msg)
+        einPub.publish("shiftIntoGraspGear1")
+
+    else:
+        right_limb.move_to_joint_positions(start_position)
     
-    right_limb.move_to_joint_positions(start_position)
-    
+    base_robot_pose = right_limb.endpoint_pose()
+
+    # gripper calibrating 
     if not right_gripper.calibrated():
         right_gripper.calibrate()
     right_gripper.open()
-
-    einPub = rospy.Publisher("/ein/right/forth_commands", String, queue_size = 0)
-
-    base_robot_pose = right_limb.endpoint_pose()
+   
 
     print "Ready to pair with hand"
     
