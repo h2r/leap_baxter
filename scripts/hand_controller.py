@@ -160,7 +160,6 @@ def hand_control(data):
 
     if not is_init:
         if using_ein:
-            #msg = "%f %f %f %f %f %f %f moveToEEPose" % start_ee_pose
             einPub.publish(start_pose_msg)
             einPub.publish("shiftIntoGraspGear1")
         else:
@@ -195,7 +194,7 @@ def hand_control(data):
 
         if cur_time - last_time > 0.01:
 
-            if hand_is_fist(data.hands[0]):
+            if hand_is_fist(data.hands[0]) and False:
                 base_hand_pose = data.hands[0].pose
                 #prev_q = right_limb.endpoint_pose()["orientation"]
                 base_robot_pose = right_limb.endpoint_pose()
@@ -260,7 +259,7 @@ def hand_control(data):
             index_pos = data.hands[0].fingers[1].tip_position
 
             if fingers_touching(thumb_pos, index_pos):
-                if cur_time - last_switch_time > 0.2:
+                if cur_time - last_switch_time > 0.5:
                     if cur_grip == True:
                         right_gripper.open(block=True)
                         cur_grip = False

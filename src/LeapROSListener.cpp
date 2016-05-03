@@ -61,6 +61,8 @@ void LeapROSListener::processFrame(const Frame &frame) {
                 hand_msg.sphere_center.y = hand.sphereCenter().y;
                 hand_msg.sphere_center.z = hand.sphereCenter().z;
 
+                //std::cout << hand.basis() << std::endl ;
+
                 hand_msg.stabilized_pose.position.x = hand.stabilizedPalmPosition().x;
                 hand_msg.stabilized_pose.position.y = hand.stabilizedPalmPosition().y;
                 hand_msg.stabilized_pose.position.z = hand.stabilizedPalmPosition().z;
